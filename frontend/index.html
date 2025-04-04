@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BhashaVaani - भाषावाणी</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-2 text-blue-600">BhashaVaani</h1>
+        <h2 class="text-2xl font-medium text-center mb-2 text-blue-800">भाषावाणी</h2>
+        <p class="text-center text-gray-700 mb-1 text-xl font-medium">Breaking language barriers with voice</p>
+        <p class="text-center text-gray-600 mb-8">Speak in any language, translate and hear in another</p>
+        
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Input Language:</label>
+                    <select id="sourceLang" class="w-full p-2 border rounded">
+                        <option value="en" selected>English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="te">Telugu</option>
+                        <option value="ta">Tamil</option>
+                        <option value="kn">Kannada</option>
+                        <option value="ml">Malayalam</option>
+                        <option value="bn">Bengali</option>
+                        <option value="mr">Marathi</option>
+                        <option value="gu">Gujarati</option>
+                        <option value="pa">Punjabi</option>
+                        <option value="od">Odia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Output Language:</label>
+                    <select id="targetLang" class="w-full p-2 border rounded">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="te">Telugu</option>
+                        <option value="ta">Tamil</option>
+                        <option value="kn" selected>Kannada</option>
+                        <option value="ml">Malayalam</option>
+                        <option value="bn">Bengali</option>
+                        <option value="mr">Marathi</option>
+                        <option value="gu">Gujarati</option>
+                        <option value="pa">Punjabi</option>
+                        <option value="od">Odia</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-center mb-6">
+                <button id="startRecording" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                    </svg>
+                    Start Recording
+                </button>
+                <button id="stopRecording" class="bg-red-500 text-white px-6 py-3 rounded-lg ml-4 hover:bg-red-600 transition-colors hidden flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1-1h-4a1 1 0 01-1-1v-4z"></path>
+                    </svg>
+                    Stop Recording
+                </button>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading" class="hidden">
+                <div class="flex items-center justify-center space-x-2 mb-6">
+                    <div class="animate-spin h-6 w-6 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+                    <p class="text-gray-600 font-medium">AI is processing your request...</p>
+                </div>
+            </div>
+
+            <div id="results" class="space-y-4 hidden">
+                <div class="flex justify-end mb-4">
+                    <button id="resetButton" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold mb-2">Original Text:</h3>
+                    <p id="originalText" class="text-gray-700">-</p>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold mb-2">Translated Text:</h3>
+                    <p id="translatedText" class="text-gray-700">-</p>
+                </div>
+
+                <div id="audioPlayer" class="hidden p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold mb-2">Output Audio:</h3>
+                    <audio controls class="w-full" id="audio">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('startRecording').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await sendAudioToServer(audioBlob);
+                    audioChunks = [];
+                };
+
+                mediaRecorder.start();
+                document.getElementById('startRecording').classList.add('hidden');
+                document.getElementById('stopRecording').classList.remove('hidden');
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                alert('Error accessing microphone. Please ensure you have granted microphone permissions.');
+            }
+        });
+
+        document.getElementById('stopRecording').addEventListener('click', () => {
+            mediaRecorder.stop();
+            document.getElementById('stopRecording').classList.add('hidden');
+            document.getElementById('startRecording').classList.remove('hidden');
+        });
+
+        async function sendAudioToServer(audioBlob) {
+            // Show loading state
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+            formData.append('source_lang', document.getElementById('sourceLang').value);
+            formData.append('target_lang', document.getElementById('targetLang').value);
+
+            try {
+                const response = await fetch('/convert-speech', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('originalText').textContent = data.original_text;
+                    document.getElementById('translatedText').textContent = data.translated_text;
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('results').classList.remove('hidden');
+                    
+                    if (data.audio_data) {
+                        const audioPlayer = document.getElementById('audioPlayer');
+                        const audio = document.getElementById('audio');
+                        audio.src = data.audio_data;
+                        audioPlayer.classList.remove('hidden');
+                        audio.play();
+                    } else {
+                        document.getElementById('audioPlayer').classList.add('hidden');
+                    }
+                } else {
+                    document.getElementById('loading').classList.add('hidden');
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                console.error('Error sending audio:', err);
+                document.getElementById('loading').classList.add('hidden');
+                alert('Error processing audio. Please try again.');
+            }
+        }
+        // Reset button functionality
+        document.getElementById('resetButton').addEventListener('click', () => {
+            // Reset text content
+            document.getElementById('originalText').textContent = '-';
+            document.getElementById('translatedText').textContent = '-';
+            
+            // Reset audio player
+            const audio = document.getElementById('audio');
+            audio.pause();
+            audio.src = '';
+            
+            // Hide results section
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('audioPlayer').classList.add('hidden');
+            
+            // Reset language selections to defaults (English -> Kannada)
+            document.getElementById('sourceLang').value = 'en';
+            document.getElementById('targetLang').value = 'kn';
+        });
+    </script>
+</body>
+</html>
