@@ -3,3 +3,4 @@ python-dotenv
 requests
 wave
 sarvamai
+gunicorn
