@@ -2,6 +2,8 @@
 
 BhashaVaani is a real-time voice translation application designed specifically for Indian languages. It enables seamless communication across different Indian languages by providing instant voice-to-voice translation.
 
+**🚀 Live Demo: [https://bhashavaani.onrender.com/](https://bhashavaani.onrender.com/) 🚀**
+
 ## Features
 
 - **Voice Input**: Record your voice in any supported Indian language
